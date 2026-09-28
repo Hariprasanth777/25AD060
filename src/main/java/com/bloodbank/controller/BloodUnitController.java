@@ -17,22 +17,39 @@ public class BloodUnitController {
         this.bloodUnitService = bloodUnitService;
     }
 
+    // Add blood unit
     @PostMapping
     public BloodUnit addBloodUnit(@RequestBody BloodUnit bloodUnit) {
         return bloodUnitService.addBloodUnit(bloodUnit);
     }
 
+    // Get all blood units
     @GetMapping
     public List<BloodUnit> getAllBloodUnits() {
         return bloodUnitService.getAllBloodUnits();
     }
 
-    @GetMapping("/{id}")
+    // Get blood unit by ID
+    @GetMapping("/id/{id}")
     public BloodUnit getBloodUnitById(@PathVariable Long id) {
         return bloodUnitService.getBloodUnitById(id);
     }
+
+    // Get stock by blood group
     @GetMapping("/stock")
     public Map<String, Long> getStockByBloodGroup() {
         return bloodUnitService.getStockByBloodGroup();
+    }
+
+    // Get blood units expiring within 7 days
+    @GetMapping("/expiring")
+    public List<BloodUnit> getExpiringBloodUnits() {
+        return bloodUnitService.getExpiringBloodUnits();
+    }
+
+    // Get complete inventory summary
+    @GetMapping("/summary")
+    public Map<String, Object> getInventorySummary() {
+        return bloodUnitService.getInventorySummary();
     }
 }

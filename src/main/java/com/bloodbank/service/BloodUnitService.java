@@ -18,14 +18,17 @@ public class BloodUnitService {
         this.bloodUnitRepository = bloodUnitRepository;
     }
 
+    // Add a blood unit
     public BloodUnit addBloodUnit(BloodUnit bloodUnit) {
         return bloodUnitRepository.save(bloodUnit);
     }
 
+    // Get all blood units
     public List<BloodUnit> getAllBloodUnits() {
         return bloodUnitRepository.findAll();
     }
 
+    // Get blood unit by ID
     public BloodUnit getBloodUnitById(Long id) {
         return bloodUnitRepository.findById(id).orElse(null);
     }
@@ -41,6 +44,11 @@ public class BloodUnitService {
         for (BloodUnit unit : availableUnits) {
 
             String bloodGroup = unit.getBloodGroup();
+
+            // Ignore old/test units with missing blood group
+            if (bloodGroup == null || bloodGroup.isBlank()) {
+                continue;
+            }
 
             stock.put(
                     bloodGroup,
@@ -58,9 +66,53 @@ public class BloodUnitService {
 
         LocalDate sevenDaysLater = today.plusDays(7);
 
-        return bloodUnitRepository.findByExpiryDateBetween(
+        return bloodUnitRepository.findByExpiryDateBetweenAndStatus(
                 today,
-                sevenDaysLater
+                sevenDaysLater,
+                "AVAILABLE"
         );
+    }
+
+    // Get complete inventory summary
+    public Map<String, Object> getInventorySummary() {
+
+        List<BloodUnit> availableUnits =
+                bloodUnitRepository.findByStatus("AVAILABLE");
+
+        Map<String, Long> stock = new HashMap<>();
+
+        for (BloodUnit unit : availableUnits) {
+
+            String bloodGroup = unit.getBloodGroup();
+
+            // Ignore units with missing blood group
+            if (bloodGroup == null || bloodGroup.isBlank()) {
+                continue;
+            }
+
+            stock.put(
+                    bloodGroup,
+                    stock.getOrDefault(bloodGroup, 0L) + 1
+            );
+        }
+
+        Map<String, Object> summary = new HashMap<>();
+
+        summary.put(
+                "totalAvailableUnits",
+                availableUnits.size()
+        );
+
+        summary.put(
+                "bloodGroupStock",
+                stock
+        );
+
+        summary.put(
+                "expiringUnits",
+                getExpiringBloodUnits().size()
+        );
+
+        return summary;
     }
 }
