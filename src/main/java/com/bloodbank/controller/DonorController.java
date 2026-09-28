@@ -30,4 +30,9 @@ public class DonorController {
     public Donor getDonorById(@PathVariable Long id) {
         return donorService.getDonorById(id);
     }
+
+    @GetMapping("/{id}/eligibility")
+    public String checkEligibility(@PathVariable Long id) {
+        return donorService.checkEligibility(id);
+    }
 }
